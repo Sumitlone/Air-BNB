@@ -5,7 +5,6 @@ const ExpressError = require("../utils/ExpressError.js");
 const Listing = require("../models/listing.js");
 const { isLoggedIn, isOwner, validateListing } = require("../middleware.js");
 
-
 // Index Route
 router.get(
   "/",
@@ -26,7 +25,12 @@ router.get(
   wrapAsync(async (req, res) => {
     const { id } = req.params;
     const listing = await Listing.findById(id)
-      .populate("reviews")
+      .populate({ 
+        path: "reviews",
+        populate: { 
+          path: "author",
+        },
+      })
       .populate("owner");
     if (!listing) {
       req.flash("error", "Listing does not exists!");
@@ -43,7 +47,7 @@ router.post(
   validateListing,
   wrapAsync(async (req, res) => {
     const newListing = new Listing(req.body.listing);
-    newListing.owner= req.user._id;
+    newListing.owner = req.user._id;
     await newListing.save();
     req.flash("success", "New listing added successfully!");
     res.redirect("/listing");
