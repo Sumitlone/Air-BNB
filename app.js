@@ -10,10 +10,11 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const wrapAsync = require("./utils/wrapAsync.js");
 
-const listing = require("./routes/listing.js");
-const review = require("./routes/review.js");
-
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
 // Database connection
 main()
   .then(() => {
@@ -37,20 +38,19 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.engine("ejs", ejsMate);
 
 const sessionOptions = {
-  secret:"secretkey",
+  secret: "secretkey",
   resave: false,
   saveUninitialized: true,
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-  }
+  },
 };
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Home Page");
 });
-
 
 app.use(session(sessionOptions));
 app.use(flash());
@@ -68,22 +68,22 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/demouser", async (req, res) => {
-  let newUser = new User({
-    email: "demouser@gmail.com",
-    username: "demoUser",
-  });
+// app.get("/demouser", wrapAsync( async(req,res) =>{
+//   let fakeUser = new User({
+//     email: "student@gmail.com",
+//     username: "delta-student"
+//   })
+//   let registeredUser = await User.register(fakeUser,"password");
+//   res.send(registeredUser);
 
-  let regUser = await User.register(newUser, "password");
-  res.send(regUser);
-});
+// }));
 
+app.use("/listing", listingRouter);
+app.use("/listing/:id/review", reviewRouter);
+app.use("/", userRouter);
 
-app.use("/listing", listing);
-app.use("/listing/:id/review",review);
-
-
-app.all("{*splat}", (req, res, next) => {
+// Catch-all for unmatched routes — use middleware (avoids path-to-regexp parsing issues)
+app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
@@ -92,7 +92,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render("error.ejs", { message });
   // res.status(statusCode).send(message);
 });
-
 
 let port = 8080;
 app.listen(port, () => {
