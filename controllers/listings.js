@@ -29,7 +29,21 @@ module.exports.showListing = async (req, res) => {
     req.flash("error", "Listing does not exists!");
     return res.redirect("/listing");
   }
-  res.render("listings/show.ejs", { listing });
+  // Ensure legacy listings have geometry set for map rendering
+  try {
+    const hasCoordinates = Array.isArray(listing?.geometry?.coordinates) && listing.geometry.coordinates.length === 2;
+    if (!hasCoordinates && listing.location) {
+      const geoResult = await maptilerClient.geocoding.forward(listing.location, { limit: 1 });
+      if (geoResult?.features?.[0]?.geometry) {
+        listing.geometry = geoResult.features[0].geometry;
+        await listing.save();
+      }
+    }
+  } catch (err) {
+    // Non-fatal: map just won't render if geocoding fails
+    console.error("Failed to backfill geometry for listing", listing._id, err);
+  }
+  res.render("listings/show.ejs", { listing, mapToken });
 };
 
 module.exports.createListing = async (req, res) => {
@@ -77,6 +91,18 @@ module.exports.updateListing = async (req, res) => {
     runValidators: true,
     new: true,
   });
+  // Refresh geometry if location is provided/updated
+  try {
+    if (req.body.listing.location) {
+      const geoResult = await maptilerClient.geocoding.forward(req.body.listing.location, { limit: 1 });
+      if (geoResult?.features?.[0]?.geometry) {
+        listing.geometry = geoResult.features[0].geometry;
+        await listing.save();
+      }
+    }
+  } catch (err) {
+    console.error("Failed to update geometry for listing", listing._id, err);
+  }
   if (typeof req.file !== "undefined") {
     let url = req.file.path;
     let filename = req.file.filename;
