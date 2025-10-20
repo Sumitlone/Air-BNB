@@ -113,3 +113,20 @@ body {
   height: 400px;
   width: 80vh;
 }
+
+.search-btn {
+  background-color: #fe424d;
+  color: white;
+  border-radius: 25px;
+}
+
+.search-btn:hover {
+  background-color: #fe424d;
+  color: white;
+}
+
+.search-input {
+  border-radius: 25px;
+  padding: 0.5rem 3rem 0.5rem 3rem;
+  text-align: center;
+}

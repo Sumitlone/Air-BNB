@@ -51,9 +51,9 @@ const sessionOptions = {
   },
 };
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the Home Page");
-});
+// app.get("/", (req, res) => {
+//   res.send("Welcome to the Home Page");
+// });
 
 app.use(session(sessionOptions));
 app.use(flash());
