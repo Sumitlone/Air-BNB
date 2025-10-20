@@ -20,7 +20,7 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-// const MongoUrl = "mongodb://127.0.0.1:27017/wanderlust";
+
 const dbUrl = process.env.ATLASDB_URL;
 
 // Database connection
@@ -48,7 +48,7 @@ app.engine("ejs", ejsMate);
 const store = MongoStore.create({
   mongoUrl: dbUrl,
   crypto: {
-    secret: "secretkey",
+    secret: process.env.SECRET,
   },
   touchAfter: 24 * 60 * 60,
 });
@@ -59,7 +59,7 @@ store.on("error", function (e) {
 
 const sessionOptions = {
   store,
-  secret: "secretkey",
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
