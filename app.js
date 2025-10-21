@@ -100,6 +100,11 @@ app.use((req, res, next) => {
 
 // }));
 
+// Root route redirects to listings
+app.get("/", (req, res) => {
+  res.redirect("/listing");
+});
+
 app.use("/listing", listingRouter);
 app.use("/listing/:id/review", reviewRouter);
 app.use("/", userRouter);
