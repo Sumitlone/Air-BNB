@@ -84,8 +84,8 @@ MAP_TOKEN="your-maptiler-token"
 # Session Secret
 SESSION_SECRET="a_long_random_string_here"
 
-# App Port (optional, defaults to 3000)
-PORT=3000
+# App Port (optional, defaults to 8080)
+PORT=8080
 ```
 
 **Important Notes:**
@@ -118,7 +118,7 @@ nodemon app.js
 
 ## Usage
 
-1.  Visit `http://localhost:port` in your browser.
+1.  Visit `http://localhost:8080` in your browser.
 2.  Register a new account and log in.
 3.  Create new listings and upload images (which are stored on Cloudinary).
 4.  View properties;
